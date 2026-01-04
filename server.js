@@ -166,12 +166,12 @@ async function generateCard(params, set) {
     const studentId = params.id_value || generateStudentId(params.id || '1');
     ctx.fillText(studentId, 715, 359);
     ctx.fillText(address.substring(0, 30), 715, 490);
-    ctx.fillText(params.academicyear || '2025-2028', 715, 553);
-    ctx.fillText(params.exp_date || '31 DEC 2025', 715, 620);
+    ctx.fillText(params.academicyear || '2026-2029', 715, 553);
+    ctx.fillText(params.exp_date || '31 DEC 2029', 715, 620);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 30px Times';
-    ctx.fillText(params.issue_date || '15 AUG 2025', 1050, 80);
+    ctx.fillText(params.issue_date || '15 DES 2025', 1050, 80);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 40px Times';
@@ -327,5 +327,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Student ID Card Generator API running on port ${PORT}`);
 });
+
 
 
