@@ -143,7 +143,7 @@ async function generateCard(params, set) {
   const address = params.address || 
                   (collegeData ? collegeData.address : '628, Kanaikhali, Natore');
 
-  const formattedDate = formatDate(params.dob || '2001-01-25');
+  const formattedDate = formatDate(params.dob || '2003-01-25');
 
   // Draw text based on template
   if (set === 'set2') {
@@ -191,12 +191,12 @@ async function generateCard(params, set) {
 
     ctx.fillStyle = '#F45245';
     ctx.font = 'bold 45px Times';
-    ctx.fillText(params.academicyear || '2025-2028', 665, 694);
+    ctx.fillText(params.academicyear || '2026-2029', 665, 694);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 30px Times';
-    ctx.fillText(params.issue_date || '15 AUG 2025', 1050, 80);
-    ctx.fillText(params.exp_date || '31 DEC 2025', 65, 785);
+    ctx.fillText(params.issue_date || '15 DES 2025', 1050, 80);
+    ctx.fillText(params.exp_date || '31 DEC 2029', 65, 785);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 40px Times';
@@ -327,3 +327,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Student ID Card Generator API running on port ${PORT}`);
 });
+
