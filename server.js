@@ -302,10 +302,10 @@ app.get('/', (req, res) => {
       name: 'required - Student name',
       university_name: 'optional - Custom university name (overrides country)',
       address: 'optional - Custom university address (overrides country)',
-      dob: 'optional - Date of birth (default: 2001-01-25)',
+      dob: 'optional - Date of birth (default: 2003-01-25)',
       id: 'optional - ID format (1=numeric, 2=alphanumeric, default: 1)',
       id_value: 'optional - Custom student ID (overrides auto-generation)',
-      academicyear: 'optional - Academic year (default: 2025-2028)',
+      academicyear: 'optional - Academic year (default: 2026-2029)',
       opacity: 'optional - Center icon opacity (default: 0.1)',
       country: 'optional - Country index (default: 0)',
       principal: 'optional - Principal name (default: Osama Aziz)',
@@ -313,9 +313,9 @@ app.get('/', (req, res) => {
       style: 'optional - Style (1 to 6, default: 2)',
       student_photo: 'optional - Student photo URL',
       college_logo: 'optional - College logo URL',
-      issue_date: 'optional - Issue date (default: 15 AUG 2025)',
+      issue_date: 'optional - Issue date (default: 15 DES 2025)',
       issue_txt: 'optional - Issue text (default: Date Of Issue)',
-      exp_date: 'optional - Expiry date (default: 31 DEC 2025)',
+      exp_date: 'optional - Expiry date (default: 31 DEC 2029)',
       exp_txt: 'optional - Expiry text (default: Card Expires)'
     },
     example: {
@@ -327,4 +327,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Student ID Card Generator API running on port ${PORT}`);
 });
+
 
