@@ -7,15 +7,20 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-registerFont(path.join(__dirname, 'public/times.ttf'), { family: 'Times' });
-registerFont(path.join(__dirname, 'public/AlexBrush-Regular.ttf'), { family: 'AlexBrush' });
+// Register fonts dengan error handling
+try {
+  registerFont(path.join(__dirname, 'public/times.ttf'), { family: 'Times' });
+  registerFont(path.join(__dirname, 'public/AlexBrush-Regular.ttf'), { family: 'AlexBrush' });
+} catch (error) {
+  console.warn('Font registration warning:', error.message);
+}
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Load clg data
+// Load college data
 let colleges = {};
 try {
   colleges = JSON.parse(fs.readFileSync(path.join(__dirname, 'public/collegeWa.json'), 'utf8'));
@@ -23,7 +28,7 @@ try {
   console.error('Error loading college data:', error);
 }
 
-// helper
+// Helper function
 async function loadImageFromSource(source) {
   if (source && source.startsWith('http')) {
     const response = await axios.get(source, { responseType: 'arraybuffer' });
@@ -34,7 +39,7 @@ async function loadImageFromSource(source) {
   return null;
 }
 
-// Generate function
+// Generate student ID
 function generateStudentId(format) {
   if (format === '1' || format === 1) {
     const part1 = Math.floor(Math.random() * 900 + 100);
@@ -64,7 +69,7 @@ function formatDate(dateStr) {
   });
 }
 
-// Main generation
+// Main card generation
 async function generateCard(params, set) {
   const canvas = createCanvas(1280, 804);
   const ctx = canvas.getContext('2d');
@@ -76,11 +81,11 @@ async function generateCard(params, set) {
     'public/temp2_4.png', 'public/temp2_5.png', 'public/temp2_6.png'];
   const templateSrc = set === 'set2' ? templates2[styleIndex] : templates1[styleIndex];
 
-  // templates
+  // Load template
   const templateImage = await loadImage(templateSrc);
   ctx.drawImage(templateImage, 0, 0, 1280, 804);
 
-  // clg logo
+  // College logo
   const logoSrc = params.college_logo || 'public/college_logo.png';
   const collegeLogo = await loadImageFromSource(logoSrc);
   if (collegeLogo) {
@@ -95,7 +100,7 @@ async function generateCard(params, set) {
     }
   }
 
-  // student pic
+  // Student photo
   const studentPhotoSrc = params.student_photo || 'public/default_student.png';
   const studentPhoto = await loadImageFromSource(studentPhotoSrc);
   if (studentPhoto) {
@@ -113,7 +118,7 @@ async function generateCard(params, set) {
     ctx.restore();
   }
 
-  // center icon
+  // Center watermark
   if (collegeLogo) {
     ctx.save();
     const opacity = parseFloat(params.opacity || '0.1');
@@ -126,19 +131,18 @@ async function generateCard(params, set) {
     ctx.restore();
   }
 
-  // clg info - MODIFIKASI DI SINI
+  // College info - SUPPORT CUSTOM UNIVERSITY NAME
   const countryIndex = parseInt(params.country || '0');
   const countries = Object.keys(colleges);
   const selectedCountry = countries[countryIndex] || countries[0];
   const collegeData = colleges[selectedCountry] ? colleges[selectedCountry][0] : null;
 
-  // TAMBAHAN: Jika university_name diisi, pakai itu. Kalau tidak, pakai dari collegeData
+  // PARAMETER BARU: university_name dan address (dengan underscore!)
   const collegeName = params.university_name || 
                       (collegeData ? collegeData.name : 'Westminster International University in Tashkent');
   const address = params.address || 
                   (collegeData ? collegeData.address : '628, Kanaikhali, Natore');
 
-  // dob format
   const formattedDate = formatDate(params.dob || '2001-01-25');
 
   // Draw text based on template
@@ -201,7 +205,7 @@ async function generateCard(params, set) {
     ctx.fillText(params.exp_txt || 'Card Expires', 10, 745);
   }
 
-  // clg name
+  // College name
   ctx.fillStyle = set === 'set2' ? '#FFFFFF' : '#000000';
   ctx.font = 'bold 32px Times';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
@@ -244,7 +248,7 @@ async function generateCard(params, set) {
     }
   }
 
-  // Draw signature
+  // Signature
   const signature = params.principal || 'Osama Aziz';
   ctx.font = 'italic 38px AlexBrush';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
@@ -258,7 +262,7 @@ async function generateCard(params, set) {
   return canvas;
 }
 
-// API
+// API endpoint /generate
 app.all('/generate', async (req, res) => {
   try {
     const params = req.method === 'GET' ? req.query : req.body;
@@ -279,14 +283,18 @@ app.all('/generate', async (req, res) => {
     res.send(buffer);
   } catch (error) {
     console.error('Error generating card:', error);
-    res.status(500).json({ error: 'Failed to generate ID card', message: error.message });
+    res.status(500).json({ 
+      error: 'Failed to generate ID card', 
+      message: error.message 
+    });
   }
 });
 
-// Health
+// API info endpoint
 app.get('/', (req, res) => {
   res.json({
     message: 'Student ID Card Generator API',
+    version: '1.1.0',
     endpoints: {
       generate: '/generate (GET or POST)',
     },
@@ -294,7 +302,7 @@ app.get('/', (req, res) => {
       name: 'required - Student name',
       university_name: 'optional - Custom university name (overrides country)',
       address: 'optional - Custom university address (overrides country)',
-      dob: 'optional - Date of birth (default: 01/25/2001)',
+      dob: 'optional - Date of birth (default: 2001-01-25)',
       id: 'optional - ID format (1=numeric, 2=alphanumeric, default: 1)',
       id_value: 'optional - Custom student ID (overrides auto-generation)',
       academicyear: 'optional - Academic year (default: 2025-2028)',
@@ -309,6 +317,9 @@ app.get('/', (req, res) => {
       issue_txt: 'optional - Issue text (default: Date Of Issue)',
       exp_date: 'optional - Expiry date (default: 31 DEC 2025)',
       exp_txt: 'optional - Expiry text (default: Card Expires)'
+    },
+    example: {
+      url: 'https://id-tivid-phi.vercel.app/generate?name=Budi&university_name=Universitas%20Gadjah%20Mada&address=Yogyakarta'
     }
   });
 });
