@@ -830,7 +830,7 @@
 
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="address">Address</label>
-                    <textarea id="address" placeholder="Enter student address"></textarea>
+                    <textarea id="address" placeholder="Enter university address"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -869,6 +869,12 @@
             <h2 class="section-title">Other Details</h2>
             
             <div class="form-grid">
+
+<div class="form-group" style="grid-column: 1 / -1;">
+    <label for="university_name">University Name</label>
+    <input type="text" id="university_name" placeholder="(Optional) Custom university name (overrides Country/College)">
+</div>
+
                 <div class="form-group">
                     <label for="country">Country</label>
                     <select id="country">
@@ -1338,18 +1344,33 @@ document.getElementById("college").addEventListener("change", function () {
 
 
 
+
+
+// Keep university_name in sync with custom college input
+document.getElementById('customCollegeInput').addEventListener('input', function () {
+    const uniField = document.getElementById('university_name');
+    if (uniField) uniField.value = this.value;
+});
         document.getElementById('college').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const addressField = document.getElementById('address');
+            const uniField = document.getElementById('university_name');
+
+            // Sync University Name field when selecting from dropdown
+            if (uniField) {
+                if (this.value && this.value !== 'custom') {
+                    uniField.value = this.value;
+                } else if (this.value === 'custom') {
+                    uniField.value = document.getElementById('customCollegeInput').value || '';
+                }
+            }
 
             if (selectedOption && selectedOption.dataset.address) {
                 addressField.value = selectedOption.dataset.address;
             } else {
                 addressField.value = '';
             }
-        });
-
-        document.getElementById('generateBtn').addEventListener('click', async function() {
+        });document.getElementById('generateBtn').addEventListener('click', async function() {
             await document.fonts.load('italic 38px "Alex Brush"');
             
             const templates1 = ['public/temp1.png', 'public/temp2.png', 'public/temp3.png', 'public/temp4.png', 'public/temp5.png', 'public/temp6.png'];
@@ -1518,13 +1539,20 @@ ctx.shadowBlur = 4;
 ctx.shadowOffsetX = 2;
 ctx.shadowOffsetY = 2;
                         
-                        let collegeValue = document.getElementById('college').value;
+                        // University name (match server.js param: university_name)
+let collegeValue = (document.getElementById('university_name')?.value || '').trim();
 
-if (collegeValue === "custom") {
-    collegeValue = document.getElementById("customCollegeInput").value || "Custom College";
+// Fallback to dropdown if University Name is empty
+if (!collegeValue) {
+    collegeValue = document.getElementById('college').value;
+
+    if (collegeValue === "custom") {
+        collegeValue = document.getElementById("customCollegeInput").value || "Custom College";
+    }
 }
 
-const college = collegeValue.toUpperCase();
+const college = (collegeValue || 'Westminster International University in Tashkent').toUpperCase();
+
 
                         const words = college.split(' ');
                         let line1 = '';
